@@ -72,6 +72,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+
     /**
      * Registers a new user. 
      * 
