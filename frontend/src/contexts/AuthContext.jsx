@@ -52,16 +52,24 @@ export const AuthProvider = ({ children }) => {
      * @returns {string} - Upon failure, Returns an error message.
      */
     const login = async (username, password) => {
-        const res = await fetch(`${BACKEND_URL}/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (!res.ok) return data.message;
-        localStorage.setItem('token', data.token);
-        setUser(data.user);
-        navigate("/profile");
+        try {
+            const res = await fetch(`${BACKEND_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (!res.ok) return data.message;
+            localStorage.setItem('token', data.token);
+            const userRes = await fetch(`${BACKEND_URL}/user/me`, {
+                headers: { Authorization: `Bearer ${data.token}` }
+            });
+            const userData = await userRes.json();
+            setUser(userData.user);
+            navigate("/profile");
+        } catch (err) {
+            return "Network error. Please try again.";
+        }
     };
 
     /**
@@ -72,14 +80,18 @@ export const AuthProvider = ({ children }) => {
      * @returns {string} - Upon failure, returns an error message.
      */
     const register = async ({ username, firstname, lastname, password }) => {
-        const res = await fetch(`${BACKEND_URL}/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, firstname, lastname, password })
-        });
-        const data = await res.json();
-        if (!res.ok) return data.message;
-        navigate("/success");
+        try {
+            const res = await fetch(`${BACKEND_URL}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, firstname, lastname, password })
+            });
+            const data = await res.json();
+            if (!res.ok) return data.message;
+            navigate("/success");
+        } catch (err) {
+            return "Network error. Please try again.";
+        }
     };
 
     return (
